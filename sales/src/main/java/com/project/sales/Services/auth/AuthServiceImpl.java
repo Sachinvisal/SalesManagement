@@ -5,6 +5,7 @@ import com.project.sales.Dto.UserDto;
 import com.project.sales.Entity.User;
 import com.project.sales.Repo.UserRepository;
 import com.project.sales.enums.UserRole;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,4 +35,16 @@ public class AuthServiceImpl implements AuthService {
 public Boolean hasUserWithEmail(String email){
         return userRepository.findFirstByEmail(email).isPresent();
 }
+@PostConstruct
+public void createAdminAccount(){
+        User adminAccount = userRepository.findByRole(UserRole.ADMIN);
+        if(null == adminAccount){
+            User user = new User();
+            user.setEmail("admin@test.com");
+            user.setName("admin");
+            user.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            userRepository.save(user);
+        }
+}
+
 }
