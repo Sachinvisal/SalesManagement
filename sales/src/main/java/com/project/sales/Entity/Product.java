@@ -1,6 +1,7 @@
 package com.project.sales.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.sales.Dto.ProductDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -29,4 +30,8 @@ public class Product {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Category category;
+
+    public ProductDto getDto(){
+
+    }
 }
