@@ -32,6 +32,14 @@ public class Product {
     private Category category;
 
     public ProductDto getDto(){
+      ProductDto productDto=new ProductDto();
+      productDto.setId(id);
+      productDto.setName(name);
+      productDto.setPrice(price);
+      productDto.setDescription(description);
+      productDto.setByteimg(img);
+      productDto.setCategoryId(category.getId());
+      return productDto;
 
     }
 }
