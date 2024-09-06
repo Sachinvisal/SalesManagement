@@ -1,6 +1,8 @@
 package com.project.sales.Services.customer.cart;
 
 import com.project.sales.Dto.AddProductInCartDto;
+import com.project.sales.Dto.CartItemsDto;
+import com.project.sales.Dto.OrderDto;
 import com.project.sales.Entity.CartItems;
 import com.project.sales.Entity.Order;
 import com.project.sales.Entity.Product;
@@ -15,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -65,5 +69,16 @@ public class CartServiceImpl implements CartService {
 
 
     }
+    public OrderDto getCartByUserId(Long userId){
+        Order activeOrder  = orderRepo.findByUserIdAndOrderStatus(userId,OrderStatus.Pending);
+        List<CartItemsDto> cartItemsList = activeOrder.getCartItems().stream().map(CartItems::geCartItemsDto).collect(Collectors.toList());
+        OrderDto orderDto = new OrderDto();
+        orderDto.setAmount(activeOrder.getAmount());
+        orderDto.setId(activeOrder.getId());
+        orderDto.setOrderStatus(activeOrder.getOrderStatus());
+        orderDto.setDiscount(activeOrder.getDiscount());
+        orderDto.setTotalAmount(activeOrder.getTotalAmount());
+        return orderDto;
+    }
 
-}
+ }
