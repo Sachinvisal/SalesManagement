@@ -3,7 +3,7 @@ import com.project.sales.Dto.AuthenticationRequest;
 import com.project.sales.Dto.SingupRequest;
 import com.project.sales.Dto.UserDto;
 import com.project.sales.Entity.User;
-import com.project.sales.Repo.UserRepository;
+import com.project.sales.Repo.UserRepo;
 import com.project.sales.Services.auth.AuthService;
 import com.project.sales.Utils.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +35,7 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
 
-    private final UserRepository userRepository;
+    private final UserRepo userRepo;
 
     public static final String TOKEN_PREFIX = "Bearer";
 
@@ -55,7 +55,7 @@ public class AuthController {
             throw  new BadCredentialsException("Incorrect Username Or Password");
         }
         final UserDetails userDetails=userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        Optional<User>optionalUser=userRepository.findFirstByEmail(userDetails.getUsername());
+        Optional<User>optionalUser= userRepo.findFirstByEmail(userDetails.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
         if (optionalUser.isPresent()) {

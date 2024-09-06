@@ -1,7 +1,7 @@
 package com.project.sales.Services.jwt;
 
 import com.project.sales.Entity.User;
-import com.project.sales.Repo.UserRepository;
+import com.project.sales.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,10 +16,10 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepo userRepo;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser =userRepository.findFirstByEmail(username);
+        Optional<User> optionalUser = userRepo.findFirstByEmail(username);
         if(optionalUser.isEmpty())throw new UsernameNotFoundException("User Name Not Found",null);
         return  new org.springframework.security.core.userdetails.User(optionalUser.get().getEmail(),optionalUser.get().getPassword()
         ,new ArrayList<>());

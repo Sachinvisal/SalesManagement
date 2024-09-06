@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jdk.jfr.Label;
 import lombok.Data;
 
+
 @Entity
 @Data
 @Table(name = "User")
