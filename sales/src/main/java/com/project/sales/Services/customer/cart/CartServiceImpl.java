@@ -3,20 +3,16 @@ package com.project.sales.Services.customer.cart;
 import com.project.sales.Dto.AddProductInCartDto;
 import com.project.sales.Dto.CartItemsDto;
 import com.project.sales.Dto.OrderDto;
-import com.project.sales.Entity.CartItems;
-import com.project.sales.Entity.Order;
-import com.project.sales.Entity.Product;
-import com.project.sales.Entity.User;
-import com.project.sales.Repo.CartItemsRepo;
-import com.project.sales.Repo.OrderRepo;
-import com.project.sales.Repo.ProductRepo;
-import com.project.sales.Repo.UserRepo;
+import com.project.sales.Entity.*;
+import com.project.sales.Repo.*;
 import com.project.sales.enums.OrderStatus;
+import com.project.sales.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +30,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private CouponRepo couponRepo;
 
     public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto){
         Order activeOrder = orderRepo.findByUserIdAndOrderStatus(addProductInCartDto.getProductId(), OrderStatus.Pending);
@@ -78,7 +77,37 @@ public class CartServiceImpl implements CartService {
         orderDto.setOrderStatus(activeOrder.getOrderStatus());
         orderDto.setDiscount(activeOrder.getDiscount());
         orderDto.setTotalAmount(activeOrder.getTotalAmount());
+        if(activeOrder.getCoupon()!= null){
+            orderDto.setCouponName(activeOrder.getCoupon().getName());
+        }
+
         return orderDto;
     }
+public OrderDto applyCoupon(Long userId,String code){
+    Order activeOrder  = orderRepo.findByUserIdAndOrderStatus(userId,OrderStatus.Pending);
+    Coupon coupon = couponRepo.findByCode(code).orElseThrow(()-> new ValidationException("Coupon not found"));
+
+    if (couponIsExpired(coupon)){
+        throw new ValidationException("Coupon has expired");
+    }
+
+    double discountAmount= ((coupon.getDiscount()/100.0) * activeOrder.getTotalAmount());
+    double netAmount = activeOrder.getAmount()- discountAmount;
+
+    activeOrder.setAmount((long)netAmount);
+    activeOrder.setDiscount((long)discountAmount);
+    activeOrder.setCoupon(coupon);
+
+    orderRepo.save(activeOrder);
+    return activeOrder.getOrderDto();
+}
+
+private boolean couponIsExpired(Coupon coupon){
+        Date currentdate = new Date();
+        Date expirationDate = coupon.getExpirationDate();
+
+
+        return expirationDate != null && currentdate.after(expirationDate);
+}
 
  }

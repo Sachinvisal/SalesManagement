@@ -3,6 +3,7 @@ package com.project.sales.Controller.customer;
 import com.project.sales.Dto.AddProductInCartDto;
 import com.project.sales.Dto.OrderDto;
 import com.project.sales.Services.customer.cart.CartService;
+import com.project.sales.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +25,15 @@ public class CartController {
     public ResponseEntity<?> getCartByUserId(@PathVariable Long userId){
         OrderDto  orderDto = cartService.getCartByUserId(userId);
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
+    }
+
+    @GetMapping("/coupon/{userId}/{code}")
+    public ResponseEntity<?> applyCoupon(@PathVariable Long userId, @PathVariable String code){
+        try{
+            OrderDto orderDto = cartService.applyCoupon(userId,code);
+            return ResponseEntity.ok(orderDto);
+        }catch (ValidationException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
     }
 }

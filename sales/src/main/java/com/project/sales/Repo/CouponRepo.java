@@ -12,4 +12,6 @@ public interface CouponRepo  extends JpaRepository<Coupon,Long> {
     @Query("select c from Coupon c where c.code=:code")
     Optional<Coupon> existByCode(String code);
 
+    Optional<Coupon> findByCode(String code);
+
 }
