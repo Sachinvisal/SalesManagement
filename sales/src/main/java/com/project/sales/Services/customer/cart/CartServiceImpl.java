@@ -68,6 +68,7 @@ public class CartServiceImpl implements CartService {
 
 
     }
+
     public OrderDto getCartByUserId(Long userId){
         Order activeOrder  = orderRepo.findByUserIdAndOrderStatus(userId,OrderStatus.Pending);
         List<CartItemsDto> cartItemsList = activeOrder.getCartItems().stream().map(CartItems::geCartItemsDto).collect(Collectors.toList());
@@ -83,7 +84,8 @@ public class CartServiceImpl implements CartService {
 
         return orderDto;
     }
-public OrderDto applyCoupon(Long userId,String code){
+
+    public OrderDto applyCoupon(Long userId,String code){
     Order activeOrder  = orderRepo.findByUserIdAndOrderStatus(userId,OrderStatus.Pending);
     Coupon coupon = couponRepo.findByCode(code).orElseThrow(()-> new ValidationException("Coupon not found"));
 
@@ -102,12 +104,43 @@ public OrderDto applyCoupon(Long userId,String code){
     return activeOrder.getOrderDto();
 }
 
-private boolean couponIsExpired(Coupon coupon){
+    private boolean couponIsExpired(Coupon coupon){
         Date currentdate = new Date();
         Date expirationDate = coupon.getExpirationDate();
 
 
         return expirationDate != null && currentdate.after(expirationDate);
+}
+
+    public  OrderDto increaseProductQuantity(AddProductInCartDto addProductInCartDto){
+       Order activeOrder = orderRepo.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.Pending);
+       Optional<Product> optionalProduct = productRepo.findById(addProductInCartDto.getProductId());
+
+       Optional<CartItems> optionalCartItems = cartItemsRepo.findByProductIdAndOrderIdAndUserId(addProductInCartDto.getProductId(), activeOrder.getId(),addProductInCartDto.getUserId());
+
+       if(optionalProduct.isPresent() && optionalCartItems.isPresent()){
+           CartItems  cartItems = optionalCartItems.get();
+           Product product = optionalProduct.get();
+
+           activeOrder.setAmount(activeOrder.getAmount() * product.getPrice());
+           activeOrder.setTotalAmount(activeOrder.getTotalAmount()* product.getPrice());
+
+           cartItems.setQuantity(cartItems.getQuantity() * 1);
+
+           if(activeOrder.getCoupon() != null){
+
+               double discountAmount = ((activeOrder.getCoupon().getDiscount()/100.00)* activeOrder.getTotalAmount());
+               double netAmount =activeOrder.getTotalAmount()-discountAmount;
+
+               activeOrder.setAmount((long)netAmount);
+               activeOrder.setDiscount((long)discountAmount);
+
+           }
+           cartItemsRepo.save(cartItems);
+           orderRepo.save(activeOrder);
+           return activeOrder.getOrderDto();
+       }
+       return null;
 }
 
  }
