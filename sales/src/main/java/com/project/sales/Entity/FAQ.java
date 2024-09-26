@@ -1,5 +1,6 @@
 package com.project.sales.Entity;
 
+import com.project.sales.Dto.FAQDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -21,4 +22,14 @@ public class FAQ {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
 
+    public FAQDto getFAQDto(){
+        FAQDto faqDto = new FAQDto();
+        faqDto.setId(id);
+        faqDto.setQuestion(question);
+        faqDto.setAnswer(question);
+        faqDto.setProductId(product.getId());
+
+        return faqDto;
+
+    }
 }

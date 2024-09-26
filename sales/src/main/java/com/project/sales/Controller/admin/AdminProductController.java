@@ -1,7 +1,9 @@
 package com.project.sales.Controller.admin;
 
+import com.project.sales.Dto.FAQDto;
 import com.project.sales.Dto.ProductDto;
 import com.project.sales.Services.admin.adminproduct.AdminProductService;
+import com.project.sales.Services.admin.faq.FAQService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import java.util.List;
 public class AdminProductController {
 
     private final AdminProductService adminProductService;
+
+    private final FAQService faqService;
 
 
     @PostMapping("/product")
@@ -43,5 +47,10 @@ public class AdminProductController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/faq/{productId}")
+    public ResponseEntity<FAQDto> postFAQ(@PathVariable Long productId,@RequestBody FAQDto faqDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(faqService.postFAQ(productId,faqDto));
     }
 }
