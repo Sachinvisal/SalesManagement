@@ -3,12 +3,17 @@ package com.project.sales.Services.customer.review;
 
 import com.project.sales.Dto.OrderedProductsResponseDto;
 import com.project.sales.Dto.ProductDto;
-import com.project.sales.Entity.CartItems;
-import com.project.sales.Entity.Order;
+import com.project.sales.Dto.ReviewDto;
+import com.project.sales.Entity.*;
 import com.project.sales.Repo.OrderRepo;
+import com.project.sales.Repo.ProductRepo;
+import com.project.sales.Repo.ReviewRepo;
+import com.project.sales.Repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +23,9 @@ import java.util.Optional;
 public class ReviewServiceImpl implements ReviewService {
 
     private final OrderRepo orderRepo;
+    private  final ProductRepo productRepo;
+    private final UserRepo userRepo;
+    private final ReviewRepo reviewRepo;
 
     public OrderedProductsResponseDto getOrderedProductsDetailsByOrderId(Long orderId){
         Optional<Order> optionalOrder = orderRepo.findById(orderId);
@@ -39,5 +47,25 @@ public class ReviewServiceImpl implements ReviewService {
             orderedProductsResponseDto.setProductDtoList(productDtoList);
         }
         return orderedProductsResponseDto;
+    }
+
+    public ReviewDto giveReview(ReviewDto reviewDto) throws IOException{
+        Optional <Product> optionalProduct = productRepo.findById(reviewDto.getProductId());
+        Optional<User> optionalUser = userRepo.findById(reviewDto.getUserId());
+
+        if(optionalProduct.isPresent() && optionalUser.isPresent()){
+            Review review = new Review();
+
+            review.setRating(reviewDto.getRating());
+            review.setDescription(reviewDto.getDescription());
+            review.setUser(optionalUser.get());
+            review.setProduct(optionalProduct.get());
+            review.setImg(reviewDto.getImg().getBytes());
+
+            return reviewRepo.save(review).getDto();
+        }
+
+        return  null;
+
     }
 }
