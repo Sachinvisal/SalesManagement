@@ -1,5 +1,6 @@
 package com.project.sales.Controller.admin;
 
+import com.project.sales.Dto.AnalyticsResponseDto;
 import com.project.sales.Dto.OrderDto;
 import com.project.sales.Services.admin.adminOrder.AdminOrderService;
 import lombok.RequiredArgsConstructor;
@@ -32,4 +33,11 @@ public class AdminOrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
 
     }
+
+    @GetMapping("/order/analytics")
+    public ResponseEntity<AnalyticsResponseDto> getAnalytics(){
+        return ResponseEntity.ok(adminOrderService.calculateAnalytics());
+    }
+
+
 }
