@@ -6,6 +6,7 @@ import com.project.sales.Dto.PlaceOrderDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CartService {
     ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto);
@@ -21,4 +22,6 @@ public interface CartService {
     OrderDto placeOrder(PlaceOrderDto placeOrderDto);
 
     public List<OrderDto> getMyPlaceOrder(Long userId);
+
+    OrderDto searchOrderByTrackingId(UUID trackingId);
 }
